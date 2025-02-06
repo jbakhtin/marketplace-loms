@@ -5,7 +5,7 @@ import (
 	"github.com/jbakhtin/marketplace-loms/internal/modules/order/models"
 )
 
-type OrderStorage interface {
+type OrderRepository interface {
 	Create(ctx context.Context, order models.Order) (models.Order, error)
 	SetStatus(ctx context.Context, ID int, status string) (models.Order, error)
 	GetByID(ctx context.Context, ID int) (models.Order, error)
