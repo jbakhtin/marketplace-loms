@@ -1,19 +1,20 @@
 package models
 
-type OrderStatus int
-
 type OrderID int64
+type UserID int64
+type OrderStatus string
 
 const (
-	_               = iota
-	New OrderStatus = 1
-	AwaitingPayment
-	Failed
-	Payed
-	Cancelled
+	New             OrderStatus = "new"
+	AwaitingPayment OrderStatus = "awaiting_payment"
+	Failed          OrderStatus = "failed"
+	Payed           OrderStatus = "payed"
+	Cancelled       OrderStatus = "cancelled"
 )
 
 type Order struct {
-	OrderID
+	ID     OrderID
+	userID UserID
 	status OrderStatus
+	items  []OrderItem
 }
