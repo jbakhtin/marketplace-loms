@@ -1,7 +1,9 @@
 package models
 
-type SKU int32
+type StockItemSKU int32
+type StockItemCount uint64
 
-type Stock struct {
-	SKU SKU
+type StockItem struct {
+	SKU   StockItemSKU
+	Count StockItemCount
 }

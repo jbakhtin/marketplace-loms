@@ -6,6 +6,6 @@ import (
 )
 
 type UseCase interface {
-	StockInfo(ctx context.Context, SKU models.SKU) (models.Stock, error)
-	CancelReservation(ctx context.Context, SKU models.SKU) error
+	StockInfo(ctx context.Context, SKU models.StockItemSKU) (models.StockItem, error)
+	CancelReservation(ctx context.Context, SKU models.StockItemSKU) error
 }

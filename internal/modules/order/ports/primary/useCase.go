@@ -11,4 +11,3 @@ type UseCase interface {
 	OrderPay(ctx context.Context, ID models.OrderID) error
 	CancelOrder(ctx context.Context, ID models.OrderID) error
 }
-ы
