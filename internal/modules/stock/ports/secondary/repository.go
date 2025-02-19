@@ -9,5 +9,5 @@ type StockStorage interface {
 	Reserve(ctx context.Context, SKU string, quantity int) error
 	ReserveCancel(ctx context.Context, SKU string, quantity int) error
 	ReserveRemove(ctx context.Context, SKU string, quantity int) error
-	GetBySKU(ctx context.Context, SKU string) (models.Stock, error)
+	GetBySKU(ctx context.Context, SKU string) ([]models.StockItem, error)
 }
