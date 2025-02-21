@@ -9,7 +9,7 @@ func New() Builder {
 }
 
 func (b *Builder) Add(fn Func) *Builder {
-	b.starter.fs = append(b.starter.fs, fn)
+	b.starter.fns = append(b.starter.fns, fn)
 	return b
 }
 
