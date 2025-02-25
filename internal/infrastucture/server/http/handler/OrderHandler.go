@@ -3,14 +3,19 @@ package handler
 import (
 	"encoding/json"
 	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/server/http/dto"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"net/http"
 )
 
 type OrderHandler struct {
+	log zap.Logger
 }
 
 func NewOrderHandler() (OrderHandler, error) {
-	return OrderHandler{}, nil
+	return OrderHandler{
+		log: *zap.New(zapcore.NewTee()),
+	}, nil
 }
 
 func (o *OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
@@ -25,6 +30,8 @@ func (o *OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: add logic
 	// ...
+
+	o.log.Info("test", zap.String("test", "Hello, FluentD!"))
 
 	createOrderResponse := dto.CreateOrderResponse{
 		OrderID: 1, // TODO: remove constant
@@ -48,7 +55,9 @@ func (o *OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (o *OrderHandler) Info(responseWriter http.ResponseWriter, request *http.Request) {
-
+	o.log.Info("test", zap.String("test", "Hello, FluentD!"))
+	o.log.Debug("test1", zap.String("test2", "Hello, Debug!"))
+	o.log.Debug("test2", zap.Any("test3", "Hello, Debug!"))
 }
 
 func (o *OrderHandler) Pay(responseWriter http.ResponseWriter, request *http.Request) {

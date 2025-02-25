@@ -35,7 +35,7 @@ func (s *Server) Start(ctx context.Context) (err error) {
 }
 
 // Shutdown корректно завершает работу сервера
-func (s *Server) Shutdown(ctx context.Context) err {
+func (s *Server) Shutdown(ctx context.Context) error {
 	if err := s.Server.Shutdown(ctx); err != nil {
 		return err
 	}

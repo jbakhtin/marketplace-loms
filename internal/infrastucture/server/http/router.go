@@ -24,19 +24,19 @@ func NewRouter() (*chi.Mux, error) {
 	router.Use(middleware.RequestID)
 	router.Use(middleware.URLFormat)
 
-	router.Route("orders", func(r chi.Router) {
-		r.Post("create", orderHandler.Create)
+	router.Route("/orders", func(r chi.Router) {
+		r.Post("/create", orderHandler.Create)
 
-		router.Route("{OrderID}", func(r chi.Router) {
-			r.Get("info", orderHandler.Info)
-			r.Put("pay", orderHandler.Pay)
-			r.Put("cancel", orderHandler.Cancel)
+		r.Route("/{OrderID}", func(r chi.Router) {
+			r.Get("/info", orderHandler.Info)
+			r.Put("/pay", orderHandler.Pay)
+			r.Put("/cancel", orderHandler.Cancel)
 		})
 	})
 
-	router.Route("stocks", func(r chi.Router) {
-		router.Route("{StockID}", func(r chi.Router) {
-			r.Get("info", stockHandler.Info)
+	router.Route("/stocks", func(r chi.Router) {
+		r.Route("/{StockID}", func(r chi.Router) {
+			r.Get("/info", stockHandler.Info)
 		})
 	})
 
