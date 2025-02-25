@@ -1,3 +1,10 @@
+x-logging: &logging
+  logging:
+    driver: "fluentd"
+    options:
+      tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+      fluentd-address: "localhost:24224"
+
 services:
   opensearch-node1:
     image: opensearchproject/opensearch:latest
@@ -61,9 +68,32 @@ services:
     networks:
       - opensearch-net
 
+  fluentd:
+    build: ./fluentd
+    volumes:
+      - ./fluentd:/fluentd/etc
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    networks:
+      - opensearch-net
+
+  server:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    <<: *logging
+    environment:
+      - DATABASE_DSN=postgres://bakhtin:12345@host.docker.internal:5432/goph_keeper
+      - DATABASE_DRIVER=pgx
+      - APP_ENV=development
+    ports:
+      - 8080:8080
+
 volumes:
   opensearch-data1:
   opensearch-data2:
 
 networks:
   opensearch-net:
+    external: true
