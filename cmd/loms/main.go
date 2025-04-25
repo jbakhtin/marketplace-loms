@@ -3,42 +3,51 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/go-chi/chi/v5"
 	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/config"
-	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/server/http"
+	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/logger/zap"
+	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/server/rest"
+	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/server/rest/router/chi"
 	"github.com/jbakhtin/marketplace-loms/pkg/closer"
 	"github.com/jbakhtin/marketplace-loms/pkg/starter"
+	"log"
+	"net/http"
 	"os/signal"
 	"syscall"
 )
 
 var err error
+var lgr zap.Logger
 var str starter.Starter
 var clr closer.Closer
 var cfg config.Config
-var router *chi.Mux
-var server http.Server
+var handler http.Handler
+var restServer rest.Server
 
 func init() {
-	starterBuilder := starter.New()
-	closerBuilder := closer.New()
-
 	cfg, err = config.NewConfig()
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 
-	router, err = http.NewRouter()
+	lgr, err = zap.NewLogger(cfg)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Fatal(err)
 	}
 
-	server, err = http.NewServer(&cfg, router)
+	starterBuilder := starter.New()
+	closerBuilder := closer.New()
+
+	handler, err = router.NewRouter(&cfg, lgr)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Fatal(err)
 	}
-	starterBuilder.Add(server.Start)
-	closerBuilder.Add(server.Shutdown)
+
+	restServer, err = rest.NewServer(&cfg, handler)
+	if err != nil {
+		log.Fatal(err)
+	}
+	starterBuilder.Add(restServer.Start)
+	closerBuilder.Add(restServer.Shutdown)
 
 	str = starterBuilder.Build()
 	clr = closerBuilder.Build()

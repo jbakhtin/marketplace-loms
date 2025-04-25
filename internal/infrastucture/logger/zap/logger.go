@@ -3,6 +3,7 @@ package zap
 import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"os"
 )
 
 // ToDo: рефакторинг
@@ -10,18 +11,7 @@ import (
 // ToDo: разобраться почему некорректно работает форматирования вывода
 // ToDo: разобраться почему файл обновляется только после остановки приложения
 
-const (
-	DevelopmentEnvironment = "development"
-	ProductionEnvironment  = "production"
-)
-
 type Config interface {
-	GetAppEnv() string
-	GetLoggerFileDirectory() string
-	GetLoggerFileMaxSize() int
-	GetLoggerFileMaxBackups() int
-	GetLoggerFileMaxAge() int
-	GetLoggerFileCompress() bool
 }
 
 type Logger struct {
@@ -29,8 +19,21 @@ type Logger struct {
 }
 
 func NewLogger(cfg Config) (Logger, error) {
+	encoderConfig := zapcore.EncoderConfig{
+		TimeKey:    "timestamp",
+		LevelKey:   "level",
+		MessageKey: "message",
+		EncodeTime: zapcore.ISO8601TimeEncoder,
+	}
+
+	core := zapcore.NewCore(
+		zapcore.NewJSONEncoder(encoderConfig), // ✅ JSON вместо строки
+		zapcore.AddSync(os.Stdout),
+		zap.InfoLevel,
+	)
+
 	return Logger{
-		Logger: *zap.New(zapcore.NewTee()),
+		Logger: *zap.New(core),
 	}, nil
 }
 

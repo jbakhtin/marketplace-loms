@@ -8,6 +8,8 @@ type Config struct {
 			Address string `env:"SERVER_HTTP_ADDRESS" envDefault:":8080"`
 		}
 	}
+	Logger struct {
+	}
 }
 
 func NewConfig() (Config, error) {
