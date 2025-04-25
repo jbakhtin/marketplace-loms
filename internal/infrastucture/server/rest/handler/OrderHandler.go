@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/server/rest/dto"
 	"net/http"
 )
 
@@ -22,6 +21,20 @@ type OrderHandler struct {
 	log Logger
 }
 
+type OrderItem struct {
+	SKU   int32
+	count uint16
+}
+
+type CreateOrderRequest struct {
+	UserID uint64
+	Items  []OrderItem
+}
+
+type CreateOrderResponse struct {
+	OrderID int64
+}
+
 func NewOrderHandler(cfg Config, lgr Logger) (OrderHandler, error) {
 	return OrderHandler{
 		cfg: cfg,
@@ -32,7 +45,7 @@ func NewOrderHandler(cfg Config, lgr Logger) (OrderHandler, error) {
 func (o *OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	var createOrderRequest dto.CreateOrderRequest
+	var createOrderRequest CreateOrderRequest
 	err := json.NewDecoder(r.Body).Decode(&createOrderRequest)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -44,7 +57,7 @@ func (o *OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	o.log.Info("test")
 
-	createOrderResponse := dto.CreateOrderResponse{
+	createOrderResponse := CreateOrderResponse{
 		OrderID: 1, // TODO: remove constant
 	}
 
