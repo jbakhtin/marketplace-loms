@@ -1,13 +1,17 @@
-package http
+package router
 
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/server/http/handler"
+	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/logger/zap"
+	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/server/rest/handler"
 )
 
-func NewRouter() (*chi.Mux, error) {
-	orderHandler, err := handler.NewOrderHandler()
+type Config interface {
+}
+
+func NewRouter(cfg Config, lgr zap.Logger) (*chi.Mux, error) {
+	orderHandler, err := handler.NewOrderHandler(cfg, lgr)
 	if err != nil {
 		return nil, err
 	}
@@ -19,7 +23,6 @@ func NewRouter() (*chi.Mux, error) {
 
 	router := chi.NewRouter()
 
-	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.RequestID)
 	router.Use(middleware.URLFormat)

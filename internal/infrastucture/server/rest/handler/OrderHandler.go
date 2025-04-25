@@ -2,19 +2,30 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/server/http/dto"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
+	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/server/rest/dto"
 	"net/http"
 )
 
-type OrderHandler struct {
-	log zap.Logger
+type Config interface {
 }
 
-func NewOrderHandler() (OrderHandler, error) {
+type Logger interface {
+	Debug(string, ...any)
+	Info(string, ...any)
+	Warn(string, ...any)
+	Error(string, ...any)
+	Fatal(string, ...any)
+}
+
+type OrderHandler struct {
+	cfg Config
+	log Logger
+}
+
+func NewOrderHandler(cfg Config, lgr Logger) (OrderHandler, error) {
 	return OrderHandler{
-		log: *zap.New(zapcore.NewTee()),
+		cfg: cfg,
+		log: lgr,
 	}, nil
 }
 
@@ -31,7 +42,7 @@ func (o *OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 	// TODO: add logic
 	// ...
 
-	o.log.Info("test", zap.String("test", "Hello, FluentD!"))
+	o.log.Info("test")
 
 	createOrderResponse := dto.CreateOrderResponse{
 		OrderID: 1, // TODO: remove constant
@@ -55,9 +66,9 @@ func (o *OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (o *OrderHandler) Info(responseWriter http.ResponseWriter, request *http.Request) {
-	o.log.Info("test", zap.String("test", "Hello, FluentD!"))
-	o.log.Debug("test1", zap.String("test2", "Hello, Debug!"))
-	o.log.Debug("test2", zap.Any("test3", "Hello, Debug!"))
+	o.log.Info("test", "test")
+	o.log.Debug("test1", "test")
+	o.log.Debug("test2", "test")
 }
 
 func (o *OrderHandler) Pay(responseWriter http.ResponseWriter, request *http.Request) {

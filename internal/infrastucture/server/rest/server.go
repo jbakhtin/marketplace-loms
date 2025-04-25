@@ -1,9 +1,7 @@
-package http
+package rest
 
 import (
 	"context"
-	"github.com/go-chi/chi/v5"
-	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/config"
 	"net/http"
 )
 
@@ -15,13 +13,11 @@ type Config interface {
 	GetServerHTTPAddress() string
 }
 
-var _ Config = &config.Config{}
-
-func NewServer(cfg Config, router chi.Router) (Server, error) {
+func NewServer(cfg Config, handler http.Handler) (Server, error) {
 	return Server{
 		Server: http.Server{
 			Addr:    cfg.GetServerHTTPAddress(),
-			Handler: router,
+			Handler: handler,
 		},
 	}, nil
 }
@@ -34,7 +30,6 @@ func (s *Server) Start(ctx context.Context) (err error) {
 	return err
 }
 
-// Shutdown корректно завершает работу сервера
 func (s *Server) Shutdown(ctx context.Context) error {
 	if err := s.Server.Shutdown(ctx); err != nil {
 		return err
