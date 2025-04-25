@@ -4,19 +4,20 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/logger/zap"
-	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/server/rest/handler"
+	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/server/rest/handler/order"
+	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/server/rest/handler/stock"
 )
 
 type Config interface {
 }
 
 func NewRouter(cfg Config, lgr zap.Logger) (*chi.Mux, error) {
-	orderHandler, err := handler.NewOrderHandler(cfg, lgr)
+	orderHandler, err := order.NewOrderHandler(cfg, lgr)
 	if err != nil {
 		return nil, err
 	}
 
-	stockHandler, err := handler.NewStockHandler()
+	stockHandler, err := stock.NewStockHandler()
 	if err != nil {
 		return nil, err
 	}
