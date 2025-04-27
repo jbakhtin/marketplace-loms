@@ -1,4 +1,4 @@
-package models
+package domain
 
 type OrderID int64
 type UserID int64

@@ -12,7 +12,7 @@ type PayRequest struct {
 type PayResponse struct{}
 
 func (o *Handler) Pay(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "use_case/json")
 
 	var request PayRequest
 	err := json.NewDecoder(r.Body).Decode(&request)

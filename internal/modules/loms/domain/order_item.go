@@ -1,4 +1,4 @@
-package models
+package domain
 
 type OrderSKU int32
 type OrderCount uint16
