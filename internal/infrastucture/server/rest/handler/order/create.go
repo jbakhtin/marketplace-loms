@@ -15,7 +15,7 @@ type CreateOrderResponse struct {
 }
 
 func (o *Handler) Create(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "use_case/json")
 
 	var createOrderRequest CreateOrderRequest
 	err := json.NewDecoder(r.Body).Decode(&createOrderRequest)

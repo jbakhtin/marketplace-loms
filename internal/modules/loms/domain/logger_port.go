@@ -1,4 +1,4 @@
-package secondary
+package domain
 
 type Logger interface {
 	Debug(msg string, fields ...any)
