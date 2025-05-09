@@ -3,21 +3,27 @@ package router
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/logger/zap"
 	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/server/rest/handler/order"
 	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/server/rest/handler/stock"
+	"github.com/jbakhtin/marketplace-loms/internal/modules/loms/ports"
+	"github.com/jbakhtin/marketplace-loms/internal/modules/loms/use_case"
 )
 
 type Config interface {
 }
 
-func NewRouter(cfg Config, lgr zap.Logger) (*chi.Mux, error) {
-	orderHandler, err := order.NewOrderHandler(cfg, lgr)
+func NewRouter(
+	cfg Config,
+	logger ports.Logger,
+	orderUseCase use_case.OrderUseCase,
+	stockUseCase use_case.StockUseCase,
+) (*chi.Mux, error) {
+	orderHandler, err := order.NewOrderHandler(cfg, logger, orderUseCase)
 	if err != nil {
 		return nil, err
 	}
 
-	stockHandler, err := stock.NewStockHandler()
+	stockHandler, err := stock.NewStockHandler(cfg, logger, stockUseCase)
 	if err != nil {
 		return nil, err
 	}

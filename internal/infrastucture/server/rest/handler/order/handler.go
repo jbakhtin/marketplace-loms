@@ -1,29 +1,23 @@
 package order
 
+import (
+	"github.com/jbakhtin/marketplace-loms/internal/modules/loms/ports"
+	"github.com/jbakhtin/marketplace-loms/internal/modules/loms/use_case"
+)
+
 type Config interface {
 }
 
-type Logger interface {
-	Debug(string, ...any)
-	Info(string, ...any)
-	Warn(string, ...any)
-	Error(string, ...any)
-	Fatal(string, ...any)
-}
-
 type Handler struct {
-	cfg Config
-	log Logger
+	cfg     Config
+	log     ports.Logger
+	useCase use_case.OrderUseCase
 }
 
-type Item struct {
-	SKU   int32
-	count uint16
-}
-
-func NewOrderHandler(cfg Config, lgr Logger) (Handler, error) {
+func NewOrderHandler(cfg Config, logger ports.Logger, useCase use_case.OrderUseCase) (Handler, error) {
 	return Handler{
-		cfg: cfg,
-		log: lgr,
+		cfg:     cfg,
+		log:     logger,
+		useCase: useCase,
 	}, nil
 }
