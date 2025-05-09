@@ -11,7 +11,6 @@ import (
 	"github.com/jbakhtin/marketplace-loms/pkg/closer"
 	"github.com/jbakhtin/marketplace-loms/pkg/starter"
 	"log"
-	"net/http"
 	"os/signal"
 	"syscall"
 )
@@ -21,7 +20,6 @@ var logger zap.Logger
 var str starter.Starter
 var clr closer.Closer
 var cfg config.Config
-var handler http.Handler
 var restServer rest.Server
 
 func init() {
