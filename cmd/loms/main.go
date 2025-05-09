@@ -6,7 +6,8 @@ import (
 	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/config"
 	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/logger/zap"
 	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/server/rest"
-	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/server/rest/router/chi"
+	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/storage/postgres"
+	"github.com/jbakhtin/marketplace-loms/internal/modules/loms"
 	"github.com/jbakhtin/marketplace-loms/pkg/closer"
 	"github.com/jbakhtin/marketplace-loms/pkg/starter"
 	"log"
@@ -16,7 +17,7 @@ import (
 )
 
 var err error
-var lgr zap.Logger
+var logger zap.Logger
 var str starter.Starter
 var clr closer.Closer
 var cfg config.Config
@@ -29,7 +30,7 @@ func init() {
 		fmt.Println(err.Error())
 	}
 
-	lgr, err = zap.NewLogger(cfg)
+	logger, err = zap.NewLogger(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,12 +38,12 @@ func init() {
 	starterBuilder := starter.New()
 	closerBuilder := closer.New()
 
-	handler, err = router.NewRouter(&cfg, lgr)
-	if err != nil {
-		log.Fatal(err)
-	}
+	orderRepository, err := postgres.NewOrderStorage()
+	stockRepository, err := postgres.NewStockStorage()
 
-	restServer, err = rest.NewServer(&cfg, handler)
+	lomsModule, err := loms.InitModule(logger, orderRepository, stockRepository)
+
+	restServer, err = rest.NewWebServer(&cfg, logger, lomsModule)
 	if err != nil {
 		log.Fatal(err)
 	}

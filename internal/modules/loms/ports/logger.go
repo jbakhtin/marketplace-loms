@@ -1,4 +1,4 @@
-package domain
+package ports
 
 type Logger interface {
 	Debug(msg string, fields ...any)

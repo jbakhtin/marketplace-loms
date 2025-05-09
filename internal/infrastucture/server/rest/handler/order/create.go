@@ -5,6 +5,9 @@ import (
 	"net/http"
 )
 
+type Item struct {
+}
+
 type CreateOrderRequest struct {
 	UserID uint64
 	Items  []Item
