@@ -7,7 +7,7 @@ import (
 
 type Module struct {
 	orderUseCase use_case.OrderUseCase
-	stockUseCase use_case.OrderUseCase
+	stockUseCase use_case.StockUseCase
 }
 
 func InitModule(
@@ -22,7 +22,7 @@ func InitModule(
 
 	logger.Debug("order use case successful initiated")
 
-	stockUseCase, err := use_case.NewOrderUseCase(logger, orderRepository, stockRepository)
+	stockUseCase, err := use_case.NewStockUseCase(logger, stockRepository)
 	if err != nil {
 		return Module{}, err
 	}
@@ -33,4 +33,12 @@ func InitModule(
 		orderUseCase: orderUseCase,
 		stockUseCase: stockUseCase,
 	}, nil
+}
+
+func (m Module) GetOrderUseCase() use_case.OrderUseCase {
+	return m.orderUseCase
+}
+
+func (m Module) GetStockUseCase() use_case.StockUseCase {
+	return m.stockUseCase
 }

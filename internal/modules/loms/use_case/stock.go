@@ -14,8 +14,8 @@ type StockUseCase struct {
 func NewStockUseCase(
 	logger ports.Logger,
 	stockRepository ports.StockRepository,
-) (OrderUseCase, error) {
-	return OrderUseCase{
+) (StockUseCase, error) {
+	return StockUseCase{
 		logger:          logger,
 		stockRepository: stockRepository,
 	}, nil
