@@ -1,4 +1,6 @@
-FROM golang:1.24-alpine
+# syntax=docker/dockerfile:1
+
+FROM golang:1.24 AS builder
 
 # Set destination for COPY
 WORKDIR /app
