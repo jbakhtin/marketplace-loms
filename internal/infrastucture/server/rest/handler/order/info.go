@@ -16,7 +16,12 @@ type InfoResponse struct {
 }
 
 func (o *Handler) Info(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "use_case/json")
+	w.Header().Set("Content-Type", "application/json")
+
+	w.WriteHeader(http.StatusOK)
+	return
+
+	o.log.Info("test")
 
 	var request InfoRequest
 	err := json.NewDecoder(r.Body).Decode(&request)
