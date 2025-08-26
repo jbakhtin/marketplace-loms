@@ -1,0 +1,1 @@
+[![codecov](https://codecov.io/gh/jbakhtin/marketplace-loms/graph/badge.svg?token=yfSINNYCxG)](https://codecov.io/gh/jbakhtin/marketplace-loms)
