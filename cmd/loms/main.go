@@ -2,17 +2,22 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
-	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/config"
-	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/logger/zap"
-	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/server/rest"
-	"github.com/jbakhtin/marketplace-loms/internal/infrastucture/storage/postgres"
-	"github.com/jbakhtin/marketplace-loms/internal/modules/loms"
-	"github.com/jbakhtin/marketplace-loms/pkg/closer"
-	"github.com/jbakhtin/marketplace-loms/pkg/starter"
+	"github.com/jbakhtin/marketplace-loms/internal/storage/postgres"
 	"log"
 	"os/signal"
 	"syscall"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/jbakhtin/marketplace-loms/internal/config"
+	"github.com/jbakhtin/marketplace-loms/internal/logger/zap"
+	"github.com/jbakhtin/marketplace-loms/internal/server/rest"
+	"github.com/jbakhtin/marketplace-loms/pkg/closer"
+	"github.com/jbakhtin/marketplace-loms/pkg/order"
+	"github.com/jbakhtin/marketplace-loms/pkg/starter"
+	"github.com/jbakhtin/marketplace-loms/pkg/stock"
+	"github.com/joho/godotenv"
 )
 
 var err error
@@ -21,8 +26,11 @@ var str starter.Starter
 var clr closer.Closer
 var cfg config.Config
 var restServer rest.Server
+var db *sql.DB
 
 func init() {
+	_ = godotenv.Load()
+
 	cfg, err = config.NewConfig()
 	if err != nil {
 		fmt.Println(err.Error())
@@ -36,12 +44,25 @@ func init() {
 	starterBuilder := starter.New()
 	closerBuilder := closer.New()
 
-	orderRepository, err := postgres.NewOrderStorage()
-	stockRepository, err := postgres.NewStockStorage()
+	db, err = postgres.NewSQLClient(&cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	lomsModule, err := loms.InitModule(logger, orderRepository, stockRepository)
+	// Инициализация модулей (каждый получает только db)
+	stockModule, err := stock.InitModule(db, logger, &cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	restServer, err = rest.NewWebServer(&cfg, logger, lomsModule)
+	stockUseCases := stockModule.GetUseCases()
+
+	orderModule, err := order.InitModule(db, logger, &cfg, &stockUseCases)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	restServer, err = rest.NewWebServer(&cfg, orderModule, stockModule)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -66,5 +87,9 @@ func main() {
 	err = clr.Close(osCtx)
 	if err != nil {
 		fmt.Println(err.Error())
+	}
+
+	if db != nil {
+		db.Close()
 	}
 }

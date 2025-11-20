@@ -1,27 +1,23 @@
-APP_NAME ?= marketplace-loms
-IMAGE ?= $(APP_NAME)
-TAG ?= latest
-CONTAINER ?= $(APP_NAME)
-PORT ?= 8080
+DOCKER_COMPOSE=docker compose
 
-.PHONY: build docker-build docker-run docker-stop docker-logs
+DOCKER_MAC_BIN := /Applications/Docker.app/Contents/Resources/bin/
+PATH := $(PATH):$(DOCKER_MAC_BIN)
+
+.PHONY: start stop
 
 build:
-	@echo "Building Go binaries..."
-	@go build ./...
+	@echo "Building ..."
+	$(DOCKER_COMPOSE) build
 
-docker-build:
-	@echo "Building Docker image $(IMAGE):$(TAG)..."
-	@docker build -t $(IMAGE):$(TAG) .
+start:
+	@echo "Starting services ..."
+	$(DOCKER_COMPOSE) up -d
+	@echo "Starting application ..."
 
-docker-run: docker-build
-	@echo "Starting container $(CONTAINER)..."
-	@docker run --rm -d --name $(CONTAINER) -p $(PORT):$(PORT) $(IMAGE):$(TAG)
+stop:
+	@echo "Stopping services ..."
+	$(DOCKER_COMPOSE) down
 
-docker-stop:
-	@echo "Stopping container $(CONTAINER)..."
-	@docker stop $(CONTAINER) || true
-
-docker-logs:
-	@docker logs -f $(CONTAINER)
-
+test:
+	@echo "Run test ..."
+	go test ./...
