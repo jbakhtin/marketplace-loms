@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	router "github.com/jbakhtin/marketplace-loms/internal/server/rest/router/chi"
+	"github.com/jbakhtin/marketplace-loms/internal/server/rest/router"
 	"github.com/jbakhtin/marketplace-loms/pkg/order"
 	"github.com/jbakhtin/marketplace-loms/pkg/stock"
 )
