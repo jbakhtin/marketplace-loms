@@ -2,9 +2,9 @@ package queries
 
 const (
 	CreateOrder = `
-		INSERT INTO orders (status)
-		VALUES (DEFAULT)
-		RETURNING id, status
+		INSERT INTO orders (user_id, status)
+		VALUES ($1, DEFAULT)
+		RETURNING id, user_id, status
 	`
 
 	CreateOrderItem = `

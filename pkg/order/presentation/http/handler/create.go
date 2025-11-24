@@ -2,56 +2,65 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/go-playground/validator/v10"
-	"github.com/jbakhtin/marketplace-loms/pkg/order/domain/models"
 	"net/http"
+
+	"github.com/go-playground/validator/v10"
+	"github.com/jbakhtin/marketplace-loms/pkg/order/app"
 )
 
 type Item struct {
-	SKU      int32  `json:"sku" validate:"required"`
-	Quantity uint16 `json:"quantity" validate:"required"`
+	SKU      int32  `json:"sku" validate:"required,gt=0"`
+	Quantity uint16 `json:"quantity" validate:"required,gt=0"`
 }
 
 type CreateOrderRequest struct {
-	UserID uint64 `json:"user_id" validate:"required"`
-	Items  []Item `json:"items" validate:"required,dive,required"`
+	UserID uint64 `json:"user_id" validate:"required,gt=0"`
+	Items  []Item `json:"items" validate:"required,min=1,dive"`
 }
 
 type CreateOrderResponse struct {
-	OrderID int64
+	OrderID int64 `json:"order_id"`
 }
 
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var createOrderRequest CreateOrderRequest
-	err := json.NewDecoder(r.Body).Decode(&createOrderRequest)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+	if err := json.NewDecoder(r.Body).Decode(&createOrderRequest); err != nil {
+		h.logger.Error("failed to decode request", "error", err)
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "invalid request body"})
 		return
 	}
-	validate := validator.New(validator.WithRequiredStructEnabled())
 
-	err = validate.Struct(createOrderRequest)
-	if err != nil {
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	if err := validate.Struct(createOrderRequest); err != nil {
+		h.logger.Warn("validation failed", "error", err)
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 		return
 	}
 
-	orderItems := make([]models.OrderItem, len(createOrderRequest.Items))
+	// Преобразуем presentation DTO в application DTO
+	itemsDTO := make([]app.CreateOrderItemDTO, len(createOrderRequest.Items))
 	for i, item := range createOrderRequest.Items {
-		orderItems[i].SKU = item.SKU
-		orderItems[i].Count = item.Quantity
+		itemsDTO[i] = app.CreateOrderItemDTO{
+			SKU:      item.SKU,
+			Quantity: item.Quantity,
+		}
 	}
 
-	err = h.useCase.CreateOrder(r.Context(), orderItems)
+	orderID, err := h.useCase.CreateOrder(r.Context(), createOrderRequest.UserID, itemsDTO)
 	if err != nil {
+		h.logger.Error("failed to create order", "error", err, "user_id", createOrderRequest.UserID)
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		json.NewEncoder(w).Encode(map[string]string{"error": "failed to create order"})
 		return
 	}
 
+	response := CreateOrderResponse{OrderID: orderID}
 	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		h.logger.Error("failed to encode response", "error", err)
+	}
 }
