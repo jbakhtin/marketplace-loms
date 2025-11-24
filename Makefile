@@ -14,6 +14,8 @@ start:
 	$(DOCKER_COMPOSE) up -d
 	@echo "Starting application ..."
 
+restart: build start
+
 stop:
 	@echo "Stopping services ..."
 	$(DOCKER_COMPOSE) down

@@ -1,6 +1,9 @@
 package domain
 
-import "context"
+import (
+	"context"
+	"github.com/jbakhtin/marketplace-loms/pkg/order/domain/models"
+)
 
 type Logger interface {
 	Debug(msg string, fields ...any)
@@ -12,7 +15,7 @@ type Logger interface {
 
 // StockService - интерфейс для работы со складом (без зависимости от stock модуля)
 type StockService interface {
-	Reserve(ctx context.Context, SKU int32, qty uint16) error
+	Reserve(ctx context.Context, orderId uint, orders []models.OrderItem) error
 	ReserveCancel(ctx context.Context, SKU int32, qty uint16) error
 	ReserveRemove(ctx context.Context, SKU int32, qty uint16) error
 }

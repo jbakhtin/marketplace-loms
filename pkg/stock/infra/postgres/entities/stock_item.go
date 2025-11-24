@@ -8,7 +8,7 @@ import (
 type StockItem struct {
 	ID        int              `json:"id,omitempty" db:"id"`
 	SKU       int              `json:"sku,omitempty" db:"sku"`
-	Available int              `json:"count,omitempty" db:"count"`
+	Available int              `json:"available,omitempty" db:"available"`
 	CreatedAt pgtype.Timestamp `json:"created_at" db:"created_at"`
 	UpdatedAt pgtype.Timestamp `json:"updated_at" db:"updated_at"`
 }

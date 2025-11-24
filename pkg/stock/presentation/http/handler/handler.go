@@ -12,10 +12,10 @@ type Config interface {
 type Handler struct {
 	cfg     Config
 	log     domain.Logger
-	useCase app.StockUseCase
+	useCase app.UseCase
 }
 
-func NewStockHandler(cfg Config, logger domain.Logger, useCase app.StockUseCase) (Handler, error) {
+func NewStockHandler(cfg Config, logger domain.Logger, useCase app.UseCase) (Handler, error) {
 	return Handler{
 		cfg:     cfg,
 		log:     logger,

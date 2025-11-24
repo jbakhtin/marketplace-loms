@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/jbakhtin/marketplace-loms/internal/storage/postgres"
+	"github.com/jbakhtin/marketplace-loms/pkg/order/infra"
 	"log"
 	"os/signal"
 	"syscall"
@@ -57,7 +58,12 @@ func init() {
 
 	stockUseCases := stockModule.GetUseCases()
 
-	orderModule, err := order.InitModule(db, logger, &cfg, &stockUseCases)
+	stockAdapter, err := infra.NewStockAdapter(stockUseCases)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	orderModule, err := order.InitModule(db, logger, &cfg, &stockAdapter)
 	if err != nil {
 		log.Fatal(err)
 	}

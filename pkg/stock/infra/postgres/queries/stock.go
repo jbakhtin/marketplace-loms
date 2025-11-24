@@ -7,23 +7,9 @@ const (
 		LIMIT 1
 	`
 
-	Reserve = `
-		WITH updated AS (
-			UPDATE stock_items 
-				SET available = available - $2
-			WHERE sku = $1 AND available >= $2
-			RETURNING sku
-		)
-		INSERT INTO reserved_items (sku, reserved, status)
-		SELECT $1, $2, 'RESERVED'::reserved_item_statuses
-		WHERE EXISTS (SELECT 1 FROM updated)
-	`
-
-	ReserveCancel = `
-		SKU string, quantity
-	`
-
-	ReserveRemove = `
-		SKU quantity
+	GetReservationByOrderId = `
+		SELECT id, order_id, sku, reserved, status, created_at, updated_at
+		FROM reserved_items
+		WHERE order_id = $1
 	`
 )

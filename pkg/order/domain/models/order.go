@@ -1,4 +1,4 @@
-package entity
+package models
 
 const (
 	New             string = "new"
@@ -9,7 +9,7 @@ const (
 )
 
 type Order struct {
-	ID     int64
+	ID     uint
 	UserID int64
 	Status string
 	Items  []OrderItem

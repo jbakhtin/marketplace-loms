@@ -2,10 +2,12 @@
 -- +goose StatementBegin
 CREATE TABLE order_items (
     id bigserial NOT NULL PRIMARY KEY,
+    order_id bigint NOT NULL,
     sku int NOT NULL,
-    count int,
+    quantity int,
     created_at timestamp NOT NULL DEFAULT now(),
-    updated_at timestamp
+    updated_at timestamp,
+    FOREIGN KEY (order_id) REFERENCES orders (id)
 )
 -- +goose StatementEnd
 

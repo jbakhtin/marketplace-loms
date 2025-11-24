@@ -3,42 +3,51 @@ package app
 import (
 	"context"
 	"github.com/jbakhtin/marketplace-loms/pkg/stock/domain/models"
+	"github.com/pkg/errors"
 
 	"github.com/jbakhtin/marketplace-loms/pkg/stock/domain"
 )
 
-type StockUseCase struct {
-	logger          domain.Logger
-	stockRepository domain.StockRepository
+type UseCase struct {
+	logger     domain.Logger
+	repository domain.StockRepository
 }
 
-func NewStockUseCase(
+func NewUseCase(
 	logger domain.Logger,
-	stockRepository domain.StockRepository,
-) (StockUseCase, error) {
-	return StockUseCase{
-		logger:          logger,
-		stockRepository: stockRepository,
+	repository domain.StockRepository,
+) (UseCase, error) {
+	return UseCase{
+		logger:     logger,
+		repository: repository,
 	}, nil
 }
 
-func (s *StockUseCase) StockInfo(ctx context.Context, sku int32) (models.StockItem, error) {
-	return s.stockRepository.GetBySKU(ctx, sku)
+func (uc *UseCase) StockInfo(ctx context.Context, sku int32) (models.StockItem, error) {
+	return uc.repository.GetStockItemBySKU(ctx, sku)
 }
 
-func (s *StockUseCase) CancelReservation(ctx context.Context, SKU int32) error {
-	return nil
+func (uc *UseCase) Reserve(
+	ctx context.Context,
+	orderId uint,
+	reservationItems []models.ReservationItem,
+) (models.Reservation, error) {
+	reservation, err := uc.repository.GetReservationByOrderID(ctx, orderId)
+	if err != nil {
+		if !errors.Is(err, domain.NotFoundError) {
+			return models.Reservation{}, err
+		}
+	} else {
+		return reservation, nil
+	}
+
+	return uc.repository.Reserve(ctx, orderId, reservationItems)
 }
 
-// Реализация StockService интерфейса
-func (s *StockUseCase) Reserve(ctx context.Context, SKU int32, qty uint16) error {
-	return s.stockRepository.Reserve(ctx, SKU, qty)
+func (uc *UseCase) ReserveCancel(ctx context.Context, orderId uint) (models.Reservation, error) {
+	return uc.repository.ReserveCancel(ctx, orderId)
 }
 
-func (s *StockUseCase) ReserveCancel(ctx context.Context, SKU int32, qty uint16) error {
-	return s.stockRepository.ReserveCancel(ctx, SKU, qty)
-}
-
-func (s *StockUseCase) ReserveRemove(ctx context.Context, SKU int32, qty uint16) error {
-	return s.stockRepository.ReserveRemove(ctx, SKU, qty)
+func (uc *UseCase) ReserveRemove(ctx context.Context, orderId uint) (models.Reservation, error) {
+	return uc.repository.ReserveRemove(ctx, orderId)
 }

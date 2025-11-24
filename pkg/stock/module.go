@@ -21,7 +21,7 @@ type Config interface {
 
 type Module struct {
 	stockHandler handler.Handler
-	stockUseCase app.StockUseCase
+	stockUseCase app.UseCase
 	logger       domain.Logger
 	cfg          Config
 }
@@ -36,7 +36,7 @@ func InitModule(
 		return Module{}, err
 	}
 
-	stockUseCase, err := app.NewStockUseCase(logger, &stockRepository)
+	stockUseCase, err := app.NewUseCase(logger, &stockRepository)
 	if err != nil {
 		return Module{}, err
 	}
@@ -57,6 +57,6 @@ func (m *Module) RegisterRoutes(r chi.Router) (err error) {
 	return m.stockHandler.RegisterRoutes(r)
 }
 
-func (m *Module) GetUseCases() app.StockUseCase {
+func (m *Module) GetUseCases() app.UseCase {
 	return m.stockUseCase
 }

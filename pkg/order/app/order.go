@@ -2,9 +2,10 @@ package app
 
 import (
 	"context"
+	"github.com/jbakhtin/marketplace-loms/pkg/order/domain/models"
+	"github.com/pkg/errors"
 
 	"github.com/jbakhtin/marketplace-loms/pkg/order/domain"
-	"github.com/jbakhtin/marketplace-loms/pkg/order/domain/entity"
 )
 
 type OrderUseCase struct {
@@ -24,21 +25,15 @@ func NewOrderUseCase(
 		stockService:    stockService,
 	}, nil
 }
-func (o *OrderUseCase) CreateOrder(ctx context.Context, order entity.Order) error {
-	// заказ получает статус "new"
-	// резервирует нужное количество единиц товара
-	// если удалось зарезервировать стоки, заказ получает статус "awaiting payment"
-	// если не удалось зарезервировать стоки, заказ получает статус "failed"
-	order, err := o.orderRepository.Create(ctx, order)
+func (o *OrderUseCase) CreateOrder(ctx context.Context, items []models.OrderItem) error {
+	order, err := o.orderRepository.Create(ctx, items)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "create order")
 	}
 
-	for _, item := range order.Items {
-		err = o.stockService.Reserve(ctx, item.SKU, item.Count)
-		if err != nil {
-			return err
-		}
+	err = o.stockService.Reserve(ctx, order.ID, order.Items)
+	if err != nil {
+		return errors.Wrap(err, "reserve stocks")
 	}
 
 	return nil
@@ -48,8 +43,8 @@ func (o *OrderUseCase) CancelOrder(ctx context.Context, ID int64) error {
 	return nil
 }
 
-func (o *OrderUseCase) GetOrderInfo(ctx context.Context, orderID int64) (entity.Order, error) {
-	return entity.Order{}, nil
+func (o *OrderUseCase) GetOrderInfo(ctx context.Context, orderID int64) (models.Order, error) {
+	return models.Order{}, nil
 }
 
 func (o *OrderUseCase) PayOrder(ctx context.Context, ID int64) error {
