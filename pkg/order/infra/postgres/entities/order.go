@@ -7,6 +7,7 @@ import (
 
 type Order struct {
 	Id        uint             `json:"id,omitempty" db:"id"`
+	UserID    int64            `json:"user_id,omitempty" db:"user_id"`
 	Status    string           `json:"status,omitempty" db:"status"`
 	CreatedAt pgtype.Timestamp `json:"created_at" db:"created_at"`
 	UpdatedAt pgtype.Timestamp `json:"updated_at" db:"updated_at"`
@@ -15,6 +16,7 @@ type Order struct {
 func (o *Order) ToModel() models.Order {
 	return models.Order{
 		ID:     o.Id,
+		UserID: o.UserID,
 		Status: o.Status,
 		Items:  make([]models.OrderItem, 0),
 	}

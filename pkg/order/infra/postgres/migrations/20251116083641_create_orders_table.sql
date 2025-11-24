@@ -4,6 +4,7 @@ CREATE TYPE order_statuses as enum('new', 'awaiting_payment', 'failed', 'payed',
 
 CREATE TABLE orders (
     id bigserial NOT NULL PRIMARY KEY,
+    user_id bigint NOT NULL,
     status order_statuses NOT NULL DEFAULT 'new'::order_statuses,
     created_at timestamp NOT NULL DEFAULT now(),
     updated_at timestamp

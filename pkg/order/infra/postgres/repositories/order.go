@@ -19,9 +19,9 @@ func NewOrderRepository(db *sql.DB) (OrderRepository, error) {
 	}, nil
 }
 
-func (o OrderRepository) Create(ctx context.Context, items []models.OrderItem) (models.Order, error) {
+func (o OrderRepository) Create(ctx context.Context, userID uint64, items []models.OrderItem) (models.Order, error) {
 	var order entities.Order
-	err := o.db.QueryRowContext(ctx, queries.CreateOrder).Scan(&order.Id, &order.Status)
+	err := o.db.QueryRowContext(ctx, queries.CreateOrder, userID).Scan(&order.Id, &order.UserID, &order.Status)
 	if err != nil {
 		return models.Order{}, err
 	}
@@ -50,12 +50,12 @@ func (o OrderRepository) Create(ctx context.Context, items []models.OrderItem) (
 	return orderModel, nil
 }
 
-func (o OrderRepository) SetStatus(ctx context.Context, ID int, status string) (models.Order, error) {
+func (o OrderRepository) SetStatus(ctx context.Context, ID int64, status string) (models.Order, error) {
 	//TODO implement me
 	return models.Order{}, nil
 }
 
-func (o OrderRepository) GetByID(ctx context.Context, ID int) (models.Order, error) {
+func (o OrderRepository) GetByID(ctx context.Context, ID int64) (models.Order, error) {
 	//TODO implement me
 	return models.Order{}, nil
 }
