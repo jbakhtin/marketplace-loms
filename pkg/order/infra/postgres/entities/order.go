@@ -6,7 +6,7 @@ import (
 )
 
 type Order struct {
-	Id        uint             `json:"id,omitempty" db:"id"`
+	Id        uint64           `json:"id,omitempty" db:"id"`
 	UserID    int64            `json:"user_id,omitempty" db:"user_id"`
 	Status    string           `json:"status,omitempty" db:"status"`
 	CreatedAt pgtype.Timestamp `json:"created_at" db:"created_at"`

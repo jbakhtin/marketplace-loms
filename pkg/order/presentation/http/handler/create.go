@@ -54,13 +54,13 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.logger.Error("failed to create order", "error", err, "user_id", createOrderRequest.UserID)
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "failed to create order"})
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 		return
 	}
 
 	response := CreateOrderResponse{OrderID: orderID}
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(response); err != nil {
+	if err = json.NewEncoder(w).Encode(response); err != nil {
 		h.logger.Error("failed to encode response", "error", err)
 	}
 }

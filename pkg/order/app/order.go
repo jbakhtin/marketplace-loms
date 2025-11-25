@@ -61,12 +61,21 @@ func (o *OrderUseCase) CreateOrder(ctx context.Context, userID uint64, items []C
 	}
 
 	// Резервируем товары
-	if err := o.stockService.Reserve(ctx, uint(order.ID), order.Items); err != nil {
-		// Если резервирование не удалось, пытаемся отменить заказ
-		// TODO: добавить транзакции для атомарности
+	if err = o.stockService.Reserve(ctx, uint(order.ID), order.Items); err != nil {
 		o.logger.Error("failed to reserve stocks, order created but not reserved",
 			"order_id", order.ID, "error", err)
+
+		_, err = o.orderRepository.SetStatusFailed(ctx, order.ID)
+		if err != nil {
+			return 0, errors.Wrap(err, "set status failed")
+		}
+
 		return 0, errors.Wrap(err, "reserve stocks")
+	}
+
+	_, err = o.orderRepository.SetStatusAwaitingPayment(ctx, order.ID)
+	if err != nil {
+		return 0, errors.Wrap(err, "set status awaiting payment")
 	}
 
 	o.logger.Info("order created successfully", "order_id", order.ID, "user_id", userID)
