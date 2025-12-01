@@ -9,7 +9,7 @@ const (
 )
 
 type Order struct {
-	ID     uint
+	ID     uint64
 	UserID int64
 	Status string
 	Items  []OrderItem

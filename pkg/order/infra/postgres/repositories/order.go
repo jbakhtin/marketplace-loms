@@ -50,12 +50,25 @@ func (o OrderRepository) Create(ctx context.Context, userID uint64, items []mode
 	return orderModel, nil
 }
 
-func (o OrderRepository) SetStatus(ctx context.Context, ID int64, status string) (models.Order, error) {
-	//TODO implement me
-	return models.Order{}, nil
+func (o OrderRepository) SetStatusFailed(ctx context.Context, ID uint64) (models.Order, error) {
+	var order entities.Order
+	err := o.db.QueryRowContext(ctx, queries.SetStatusFailed, ID).Scan(&order.Id, &order.UserID, &order.Status)
+	if err != nil {
+		return models.Order{}, err
+	}
+	return order.ToModel(), nil
 }
 
-func (o OrderRepository) GetByID(ctx context.Context, ID int64) (models.Order, error) {
+func (o OrderRepository) SetStatusAwaitingPayment(ctx context.Context, ID uint64) (models.Order, error) {
+	var order entities.Order
+	err := o.db.QueryRowContext(ctx, queries.SetStatusAwaitingPayment, ID).Scan(&order.Id, &order.UserID, &order.Status)
+	if err != nil {
+		return models.Order{}, err
+	}
+	return order.ToModel(), nil
+}
+
+func (o OrderRepository) GetByID(ctx context.Context, ID uint64) (models.Order, error) {
 	//TODO implement me
 	return models.Order{}, nil
 }
