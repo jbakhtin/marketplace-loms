@@ -34,12 +34,10 @@ func NewOrderUseCase(
 }
 
 func (o *OrderUseCase) CreateOrder(ctx context.Context, userID uint64, items []CreateOrderItemDTO) (int64, error) {
-	// Бизнес-валидация
 	if len(items) == 0 {
 		return 0, errors.New("order must contain at least one item")
 	}
 
-	// Преобразуем DTO в доменные модели
 	orderItems := make([]models.OrderItem, len(items))
 	for i, item := range items {
 		if item.SKU <= 0 {
@@ -54,23 +52,22 @@ func (o *OrderUseCase) CreateOrder(ctx context.Context, userID uint64, items []C
 		}
 	}
 
-	// Создаем заказ
 	order, err := o.orderRepository.Create(ctx, userID, orderItems)
 	if err != nil {
 		return 0, errors.Wrap(err, "create order")
 	}
 
-	// Резервируем товары
-	if err = o.stockService.Reserve(ctx, uint(order.ID), order.Items); err != nil {
+	reserveErr := o.stockService.Reserve(ctx, uint(order.ID), order.Items)
+	if reserveErr != nil {
 		o.logger.Error("failed to reserve stocks, order created but not reserved",
-			"order_id", order.ID, "error", err)
+			"order_id", order.ID, "error", reserveErr)
 
 		_, err = o.orderRepository.SetStatusFailed(ctx, order.ID)
 		if err != nil {
 			return 0, errors.Wrap(err, "set status failed")
 		}
 
-		return 0, errors.Wrap(err, "reserve stocks")
+		return 0, errors.Wrap(reserveErr, "reserve stocks")
 	}
 
 	_, err = o.orderRepository.SetStatusAwaitingPayment(ctx, order.ID)
